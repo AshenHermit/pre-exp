@@ -1,0 +1,53 @@
+body {
+    padding: 0;
+    margin: 0;
+    background-color: #2d2d2d;
+    color: #fff;
+    font-family: monospace;
+}
+
+.row {
+    display: flex;
+}
+
+div#app {
+    padding: 2em;
+}
+
+.label {
+    font-size: 1.2em;
+}
+
+.block {
+    background-color: #3e3e3e;
+    padding: 1.5em;
+    margin: 13px;
+}
+
+input[type="file"] {
+    margin-left: 33px;
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 11px;
+}
+
+.options .item {
+    width: 100%;
+    padding: 1em;
+    background-color: #333;
+    margin-right: 4px;
+}
+
+.options .item button {
+    width: 100%;
+    border: 0;
+    padding: 0.5em;
+    background-color: #fff;
+}
+
+.secondary{
+    opacity: 0.6;
+}
