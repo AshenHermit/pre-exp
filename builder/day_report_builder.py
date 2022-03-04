@@ -110,7 +110,7 @@ class DayReportBuilder(ExcelSheetBuilder):
         self.data_start_y = 4
         group_people_map = self.group_people_map
 
-        end_col = 1+len(group_people_map)-1
+        end_col = 3
         for i in range(2):
             self.sheet.merge_cells(
                 start_column=1, start_row = 1+i, 
