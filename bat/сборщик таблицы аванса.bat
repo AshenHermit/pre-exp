@@ -1,1 +1,2 @@
-python "%~dp0/../main.py" main.py
+python "%~dp0/../main.py" --table
+pause
