@@ -1,2 +1,2 @@
-eel
 openpyxl
+PyQt5

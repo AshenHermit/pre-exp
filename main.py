@@ -1,11 +1,14 @@
+from pathlib import Path
+import traceback
+from builder.builder import ExcelWorkbookWriter
+from builder.graph_builder import GraphBuilder
+from builder.prepaid_exp_builder import PrepaidExpenseBuilder
 from client import Client
-from builder import Builder
+from old_builder import Builder
+
+from old_builder import Builder
 
 import argparse
-parser = argparse.ArgumentParser(description='Помощь:')
-parser.add_argument('--graph', action="store_true", help='сгенерировать график')
-args = parser.parse_args()
-
 
 import tkinter as tk
 from tkinter import filedialog
@@ -13,29 +16,49 @@ from tkinter import filedialog
 root = tk.Tk()
 root.withdraw()
 
+gen_type_locale = {
+    "graph": "график",
+    "table": "табель"
+}
+
+builders = {
+    "graph": GraphBuilder(),
+    "table": PrepaidExpenseBuilder()
+}
+
 def main_console():
-    generation_type = ("graph" if args.graph else "table")
-    print("тип сборки: " + generation_type)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input', type=str, help='входной xlsx файл', default="")
+    parser.add_argument('--type', type=str, help='тип генерации: graph / table')
+    parser.add_argument('--sheet-name', type=str, help='название таблицы для сканирования', default="ВСЕ")
+    args = parser.parse_args()
 
-    builder = Builder(generation_type)
-    print("выберите таблицу суткок:")
-    input_path = filedialog.askopenfilename()
-    if input_path != '':
-        print(input_path)
-        print()
-        # try:
-        
-        output_path = input_path[:input_path.rfind("/")] + "/"+generation_type+"_"+ input_path[input_path.rfind("/")+1:input_path.rfind(".")] +".xlsx"
-        builder.build(input_path, output_path)
-        print()
-        print("сохранено в файл: {}".format(output_path))
+    generation_type = args.type
+    if generation_type not in builders:
+        print(f"неверный тип сборки: \"{generation_type}\"")
+        return
 
-        # except:
-        #     print("что-то пошло не так.")
+    print(f"тип сборки: \"{gen_type_locale[generation_type]}\"")
+
+    try:
+        if args.input!="":
+            input_path = args.input
+        else:
+            input_path = filedialog.askopenfilename()
+        input_path = Path(input_path).resolve()
+        if input_path.exists():
+            gen_type_loc = gen_type_locale[generation_type]
+            output_path = input_path.with_name(gen_type_loc + " - " + input_path.with_suffix("").name + ".xlsx")
+            
+            builder = builders[generation_type]
+            writer = ExcelWorkbookWriter(builder, input_path, output_path, args.sheet_name)
+            writer.run()
+    except:
+        print("что-то пошло не так")
+        traceback.print_exc()
 
 def main_client():
     client = Client()
-    client.run()
 
 def main_test():
     builder = Builder()
@@ -43,4 +66,4 @@ def main_test():
 
 if __name__ == "__main__":
     main_console()
-    input("нажмите Enter чтобы выйти.")
+    input("нажмите любую кнопку чтобы выйти.")

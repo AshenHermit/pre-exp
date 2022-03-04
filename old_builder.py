@@ -1,8 +1,10 @@
 from openpyxl import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl import load_workbook
 from openpyxl.styles.alignment import Alignment
 from openpyxl.styles.fonts import Font
 from openpyxl.utils import get_column_letter
+import typing
 
 x_offset = 5
 y_offset = 4
@@ -138,7 +140,7 @@ class Builder:
     def build_graph(self, staff, output_sheet, last_cell_x):
         # main data
         last_cell_x-=1
-        for x in range(1, last_cell_x+1): # + Уч. номер(2) + Должность(1) + Итого_1(1) + Всего(1)
+        for x in range(1, last_cell_x+2): # + Уч. номер(2) + Должность(1) + Итого_1(1) + Всего(1)
             output_sheet.cell(column=x, row=3).font = Font(size=6)
 
             output_sheet.cell(column=x, row=3).alignment = Alignment(horizontal='center')
@@ -167,6 +169,10 @@ class Builder:
             elif x==last_cell_x:
                 output_sheet.cell(column=x, row=2).alignment = Alignment(horizontal='center')
                 output_sheet.cell(column=x, row=2).value = "Основная ставка"
+                
+            elif x==last_cell_x+1:
+                output_sheet.cell(column=x, row=2).alignment = Alignment(horizontal='center')
+                output_sheet.cell(column=x, row=2).value = "Ночь"
 
         #staff
         for i, emp in enumerate(staff):
@@ -175,7 +181,12 @@ class Builder:
                 y = i*2+dn*2
 
                 # days
+                total_day = 0
+                total_night = 0
+                dx = 0
+                dy = 0
                 for x, day in reversed(list(enumerate(emp['days']))):
+
                     if dn == 0:
                         dx = x_offset + x
                         dy = y_offset + y
@@ -185,37 +196,48 @@ class Builder:
                             # self.set_table_value(output_sheet, dx, dy+1, "В")
 
                         elif day == "с":
+                            total_day+=15+7.5
+                            total_night+=2+6
                             self.set_table_value(output_sheet, dx, dy, "7:59")
                             self.set_table_value(output_sheet, dx, dy+1, "23:59")
                             self.set_table_value(output_sheet, dx+1, dy, "0:01")
                             self.set_table_value(output_sheet, dx+1, dy+1, "8:01")
 
                         elif day=="1,8":
+                            total_day+=1.8
                             self.set_table_value(output_sheet, dx+1, dy, "16:0")
                             self.set_table_value(output_sheet, dx+1, dy+1, "17:48")
 
                         elif day=="0/8":
+                            total_day+=7.5
+                            total_night+=6
                             self.set_table_value(output_sheet, dx+1, dy, "0:01")
                             self.set_table_value(output_sheet, dx+1, dy+1, "8:01")
 
                         elif str(day).isdigit():
                             if emp['job'][:5] == 'буфет' or emp['job'][:5] == 'уборщ':
+                                total_day+=11.5
                                 self.set_table_value(output_sheet, dx, dy, "8:00")
                                 self.set_table_value(output_sheet, dx, dy+1, "20:00")
 
                             else:
+                                total_day+=12+12
+                                total_night+=7.2+7.2
                                 self.set_table_value(output_sheet, dx, dy, "7:59")
                                 self.set_table_value(output_sheet, dx, dy+1, "23:59")
                                 self.set_table_value(output_sheet, dx+1, dy, "0:01")
                                 self.set_table_value(output_sheet, dx+1, dy+1, "8:01")
 
                         elif day=="д":
+                            total_day+=7.2
                             self.set_table_value(output_sheet, dx, dy, "8:00")
                             self.set_table_value(output_sheet, dx, dy+1, "15:42")
 
                         else:
                             pass
                             # self.set_table_value(output_sheet, dx, dy+1, day)
+                self.set_table_value(output_sheet, x_offset+self.days_count_in_month, y_offset+y, total_day)
+                self.set_table_value(output_sheet, x_offset+self.days_count_in_month+1, y_offset+y, total_night)
 
 
 
@@ -332,9 +354,9 @@ class Builder:
     def set_table_value(self, sheet, x, y, value):
         if self.generation_type =='table' and x >= 20:
             x+=1
-            limit = 1+self.days_count_in_month+(2+1+1+1)
+            limit = 1+self.days_count_in_month+(2 + 1*3)
         else:
-            limit = self.days_count_in_month+(2+1+1+1)
+            limit = self.days_count_in_month+(2 + 1*5)
 
         if x < limit:
             sheet.cell(column=x, row=y).alignment = Alignment(horizontal='center', vertical='center')
