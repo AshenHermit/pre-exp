@@ -27,12 +27,12 @@ class DayReportBuilder(ExcelSheetBuilder):
         group_people_map:dict[str, list] = {}
         for person in self.staff.people:
             day = person.days[self.selected_day-1] or ""
-            for rule in self.rules.rules:
-                if rule.test_day(day) and rule.test_job(person.job):
-                    for group_name in rule.groups_names:
-                        if group_name not in group_people_map:
-                            group_people_map[group_name] = []
-                        group_people_map[group_name].append(person)
+            rule = self.rules.get_fit_rule(day, person.job)
+            if rule is not None:
+                for group_name in rule.groups_names:
+                    if group_name not in group_people_map:
+                        group_people_map[group_name] = []
+                    group_people_map[group_name].append(person)
         return group_people_map
 
     def build(self):

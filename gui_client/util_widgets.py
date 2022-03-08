@@ -27,7 +27,6 @@ class InputPathWidget(QWidget):
 
         self.setObjectName("InputPathWidget")
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
-        self.setStyleSheet('')
         self.setStyleSheet('QWidget#InputPathWidget{ background-color: rgba(255, 255, 255, .05); }\n'+\
         'QWidget{ background-color: rgba(255, 255, 255, .0); }')
 
