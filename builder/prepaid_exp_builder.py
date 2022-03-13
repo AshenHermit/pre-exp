@@ -72,23 +72,23 @@ class PrepaidExpenseBuilder(ExcelSheetBuilder):
                 if self.days_count_in_month == 31:
                     self.sheet.cell(column=self.last_cell_x, row=self.data_start_y + y).value = "=SUM(U{0}:AJ{0})+T{0}".format(self.data_start_y + y)
 
-                # days
-                for x, day in reversed(list(enumerate(emp.days))):
-                    if dn == 0:
-                        dx = self.data_start_x + x
-                        dy = self.data_start_y + y
-                        
-                        if day == None:
-                            day = ""
-                        else:
-                            self.set_table_value(dx, dy+1, day)
+            y = i*4
+            # days
+            for x, day in reversed(list(enumerate(emp.days))):
+                dx = self.data_start_x + x
+                dy = self.data_start_y + y
+                
+                if day == None:
+                    day = ""
+                else:
+                    self.set_table_value(dx, dy+1, day)
 
-                        rule = self.rules.get_fit_rule(day, emp.job)
-                        if rule is not None:
-                            exp_table = rule.tables[0]
-                            for i in range(exp_table.size[0]):
-                                for j in range(exp_table.size[1]):
-                                    self.set_table_value(dx+i, dy+j, exp_table.get(i, j))
+                rule = self.rules.get_fit_rule(day, emp.job)
+                if rule is not None:
+                    exp_table = rule.tables[0]
+                    for i in range(exp_table.size[0]):
+                        for j in range(exp_table.size[1]):
+                            self.set_table_value(dx+i, dy+j, exp_table.get(i, j))
 
     def set_table_value(self, x, y, value, use_limit=True):
         value = self.format_cell_value(value)
