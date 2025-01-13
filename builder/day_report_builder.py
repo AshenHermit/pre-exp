@@ -24,7 +24,8 @@ class DayReportBuilder(ExcelSheetBuilder):
 
     @property
     def group_people_map(self):
-        group_people_map:dict[str, list] = {}
+        group_people_map:dict[str, list] = {group_name: [] for group_name in self.all_groups}
+        
         for person in self.staff.people:
             day = person.days[self.selected_day-1] or ""
             rule = self.rules.get_fit_rule(day, person.job)
@@ -34,6 +35,15 @@ class DayReportBuilder(ExcelSheetBuilder):
                         group_people_map[group_name] = []
                     group_people_map[group_name].append(person)
         return group_people_map
+    
+    @property
+    def all_groups(self):
+        groups = set()
+        for rule in self.rules.rules:
+            for group_name in rule.groups_names:
+                groups.add(group_name)
+        return list(groups)
+        
 
     def build(self):
         self.setup_data()
